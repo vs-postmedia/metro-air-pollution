@@ -1,9 +1,12 @@
 import maplibregl from 'maplibre-gl';
 import MaplibreGeocoder from '@maplibre/maplibre-gl-geocoder';
 
+import popupTemplate from '../../../data/popup-template';
+
 // CSS
 import './Map.css';
 import './maplibre-gl.css';
+import '../../../css/popup.css';
 import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 
 let map, popup;
@@ -29,6 +32,7 @@ function init(facilities, options) {
 		closeonClick: false
 	});
 
+	//
 	map.on('mouseenter', 'facilities', showPopup);
 	map.on('click', 'facilities', showPopup);
 
@@ -98,6 +102,7 @@ function init(facilities, options) {
 	// add map data
 	map.on('load', () => {
 		map
+			// facility locations
 			.addSource('facilities', {
 				type: 'geojson',
 				data: facilities
@@ -132,11 +137,12 @@ function init(facilities, options) {
 }
 
 function showPopup(e) {
+	const data = {};
 	// change the cursor style as UI indicator
 	map.getCanvas().style.cursor = 'pointer';
 
 	const coords = e.features[0].geometry.coordinates.slice();
-	const org = e.features[0].properties.organization;
+	data.org = e.features[0].properties.organization;
 
 	// Ensure that if the map is zoomed out such that multiple
 	// copies of the feature are visible, the popup appears
@@ -145,8 +151,11 @@ function showPopup(e) {
 		coords[0] += e.lngLat.lng > coords[0] ? 360 : -360;
 	}
 
+	// fill in the popup template
+	const html = popupTemplate(data);
+
 	// population the popup & set coordinates
-	popup.setLngLat(coords).setHTML(org).addTo(map);
+	popup.setLngLat(coords).setHTML(html).addTo(map);
 }
 
 // function setActiveChapter(section, activeSection, data) {

@@ -1,0 +1,7 @@
+.popup-container {
+    margin: 5px;
+}
+
+.popup-container > h2 {
+    font-size: 1rem;
+}
