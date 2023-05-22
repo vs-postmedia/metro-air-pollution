@@ -3,10 +3,11 @@ import './App.css';
 
 // scrollytelling chapters
 import data from '../../../data/data';
+import locations from '../../../data/facilities'
 
 // map tiles & attribution
 const options = {
-	activeSection: 'baker',
+	// activeSection: 'baker',
 	bearing: 0,
 	// center: [-0.15591514, 51.51830379],
 	center: [-122.98876218587124, 49.24433191299974],
@@ -17,7 +18,7 @@ const options = {
 
 
 function init() {
-	Map.init(data, options);	
+	Map.init(locations, options);	
 }
 
 export default { init };

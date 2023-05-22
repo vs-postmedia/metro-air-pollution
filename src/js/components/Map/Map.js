@@ -6,11 +6,11 @@ import './Map.css';
 import './maplibre-gl.css';
 import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 
-let map;
+let map, popup;
 
 
-function init(data, options) {
-	console.log(data)
+function init(facilities, options) {
+	console.log(facilities)
 
 	// setup the map
 	map = new maplibregl.Map({
@@ -22,6 +22,15 @@ function init(data, options) {
 		bearing: options.bearing,
 		pitch: options.pitch	
 	});
+
+	// create a popup but don't add it to the map yet...
+	popup = new maplibregl.Popup({
+		closeButton: true,
+		closeonClick: false
+	});
+
+	map.on('mouseenter', 'facilities', showPopup);
+	map.on('click', 'facilities', showPopup);
 
 	// create geolocator
 	const geocoder_api = {
@@ -86,6 +95,27 @@ function init(data, options) {
 			new maplibregl.NavigationControl()
 		);
 
+	// add map data
+	map.on('load', () => {
+		map
+			.addSource('facilities', {
+				type: 'geojson',
+				data: facilities
+			})
+			.addLayer({
+				id: 'facilities',
+				type: 'circle',
+				source: 'facilities',
+				paint: {
+					'circle-color': '#0062a3',
+					'circle-opacity': 0.7,
+					'circle-radius': 5,
+					'circle-stroke-color': '#FFF',
+					'circle-stroke-width': 0.5
+				}
+			});
+	});
+
 	// On every scroll event, check which element is on screen
 	// window.onscroll = (map) => {
 	// 	const sections = Object.keys(data);
@@ -101,6 +131,23 @@ function init(data, options) {
 	// };
 }
 
+function showPopup(e) {
+	// change the cursor style as UI indicator
+	map.getCanvas().style.cursor = 'pointer';
+
+	const coords = e.features[0].geometry.coordinates.slice();
+	const org = e.features[0].properties.organization;
+
+	// Ensure that if the map is zoomed out such that multiple
+	// copies of the feature are visible, the popup appears
+	// over the copy being pointed to.
+	while (Math.abs(e.lngLat.lng - coords[0]) > 180) {
+		coords[0] += e.lngLat.lng > coords[0] ? 360 : -360;
+	}
+
+	// population the popup & set coordinates
+	popup.setLngLat(coords).setHTML(org).addTo(map);
+}
 
 // function setActiveChapter(section, activeSection, data) {
 // 	if (section === activeSection) return;
