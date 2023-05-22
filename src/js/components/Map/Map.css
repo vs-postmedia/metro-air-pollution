@@ -2,7 +2,35 @@
 	bottom: 0;
 	position: fixed;
 	top: 60px;
-	width: 50%;
+	/* width: 50%; */
+	width: 100%;
 }
 
+/* MAP CONTROLS */
+#map > div.maplibregl-control-container.mapboxgl-control-container > div.maplibregl-ctrl-top-right.mapboxgl-ctrl-top-right {
+	display: flex;
+	left: 10px;
+}
 
+/* GEOLOCATE */
+#map > div.maplibregl-control-container.mapboxgl-control-container > div.maplibregl-ctrl-top-right.mapboxgl-ctrl-top-right > div:nth-child(1) {
+	max-height: 29px;
+}
+
+/* SEARCH BOX */
+#map > div.maplibregl-control-container.mapboxgl-control-container > div.maplibregl-ctrl-top-right.mapboxgl-ctrl-top-right > div.mapboxgl-ctrl-geocoder.mapboxgl-ctrl.maplibregl-ctrl-geocoder.maplibregl-ctrl {
+	max-height: 29px;
+}
+/* MAGNIFIYING GLASS */
+#map > div.maplibregl-control-container.mapboxgl-control-container > div.maplibregl-ctrl-top-right.mapboxgl-ctrl-top-right > div.mapboxgl-ctrl-geocoder.mapboxgl-ctrl.maplibregl-ctrl-geocoder.maplibregl-ctrl > svg {
+	top: 5px;
+}
+/* SEARCH TEXT */
+#map > div.maplibregl-control-container.mapboxgl-control-container > div.maplibregl-ctrl-top-right.mapboxgl-ctrl-top-right > div.mapboxgl-ctrl-geocoder.mapboxgl-ctrl.maplibregl-ctrl-geocoder.maplibregl-ctrl > input {
+	height: 30px;
+	padding-right: 3px;
+}
+/* CLOSE SEARCH BUTTON */
+#map > div.maplibregl-control-container.mapboxgl-control-container > div.maplibregl-ctrl-top-right.mapboxgl-ctrl-top-right > div.mapboxgl-ctrl-geocoder.mapboxgl-ctrl.maplibregl-ctrl-geocoder.maplibregl-ctrl > div.mapboxgl-ctrl-geocoder--pin-right.maplibregl-ctrl-geocoder--pin-right > button {
+	top: 0;
+}
