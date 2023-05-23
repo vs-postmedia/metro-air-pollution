@@ -13,7 +13,7 @@ let map, popup;
 const geocodeZoomLevel = 14;
 
 
-function init(facilities, options) {
+async function init(facilities, options) {
 	console.log(facilities);
 
 	// setup the map
@@ -27,68 +27,11 @@ function init(facilities, options) {
 		pitch: options.pitch	
 	});
 
-	// create geolocator
-	const geocoder_api = {
-		forwardGeocode: async (config) => {
-			const features = [];
-			
-			try {
-				let request =
-				'https://nominatim.openstreetmap.org/search?q=' + config.query + '&format=geojson&polygon_geojson=1&addressdetails=1';
-				const response = await fetch(request);
-				const geojson = await response.json();
-				
-				for (let feature of geojson.features) {
-					let center = [
-						feature.bbox[0] + (feature.bbox[2] - feature.bbox[0]) / 2,
-						feature.bbox[1] + (feature.bbox[3] - feature.bbox[1]) / 2
-					];
+	// setup address search
+	const geocoder = await setupGeocoder(map);
 
-					let point = {  
-							type: 'Feature',
-							geometry: {
-							type: 'Point',
-							coordinates: center
-						},
-						place_name: feature.properties.display_name,
-						properties: feature.properties,
-						text: feature.properties.display_name,
-						place_type: ['place'],
-						center: center
-					};
-				
-					features.push(point);
-				}
-			} catch (e) {
-				console.error(`Failed to forwardGeocode with error: ${e}`);
-			}
-			
-			return {
-				features: features
-			};
-		}
-	};
-
-	const geocoder = new MaplibreGeocoder(geocoder_api, {
-		maplibregl: maplibregl
-	});
-	// default zoom is too close
-	geocoder.on('result', e => {
-		map.flyTo({
-			center: e.result.center,
-			zoom: geocodeZoomLevel
-		});
-	});
-
-	// create a popup but don't add it to the map yet...
-	popup = new maplibregl.Popup({
-		closeButton: true,
-		closeonClick: false
-	});
-
-	// mouseevents for popup
-	map.on('mouseenter', 'facilities', showPopup);
-	map.on('click', 'facilities', showPopup);
+	// setup popup for facilities
+	const popup = setupPopup(map);
 
 	// Add features to the map
 	map
@@ -128,20 +71,75 @@ function init(facilities, options) {
 				}
 			});
 	});
+}
 
-	// On every scroll event, check which element is on screen
-	// window.onscroll = (map) => {
-	// 	const sections = Object.keys(data);
+async function setupGeocoder(map) {
+		// create geolocator
+		const geocoder_api = {
+			forwardGeocode: async (config) => {
+				const features = [];
+				
+				try {
+					let request =
+					'https://nominatim.openstreetmap.org/search?q=' + config.query + '&format=geojson&polygon_geojson=1&addressdetails=1';
+					const response = await fetch(request);
+					const geojson = await response.json();
+					
+					for (let feature of geojson.features) {
+						let center = [
+							feature.bbox[0] + (feature.bbox[2] - feature.bbox[0]) / 2,
+							feature.bbox[1] + (feature.bbox[3] - feature.bbox[1]) / 2
+						];
+	
+						let point = {  
+								type: 'Feature',
+								geometry: {
+								type: 'Point',
+								coordinates: center
+							},
+							place_name: feature.properties.display_name,
+							properties: feature.properties,
+							text: feature.properties.display_name,
+							place_type: ['place'],
+							center: center
+						};
+					
+						features.push(point);
+					}
+				} catch (e) {
+					console.error(`Failed to forwardGeocode with error: ${e}`);
+				}
+				
+				return {
+					features: features
+				};
+			}
+		};
+	
+		const geocoder = new MaplibreGeocoder(geocoder_api, {
+			maplibregl: maplibregl
+		});
+		// default zoom is too close
+		geocoder.on('result', e => {
+			map.flyTo({
+				center: e.result.center,
+				zoom: geocodeZoomLevel
+			});
+		});
 
-	// 	for (let i = 0, l = sections.length; i < l; i++) {
-	// 		const section = sections[i];
+	return geocoder;
+}
 
-	// 		if (isElementOnScreen(section)) {
-	// 			setActiveChapter(section, options.activeSection, data);
-	// 			break;
-	// 		}
-	// 	}
-	// };
+function setupPopup(map) {
+	// create a popup but don't add it to the map yet...
+	popup = new maplibregl.Popup({
+		closeButton: true,
+		closeonClick: false
+	});
+
+	// mouseevents for popup
+	map.on('mouseenter', 'facilities', showPopup);
+	map.on('click', 'facilities', showPopup);
 }
 
 function showPopup(e) {
