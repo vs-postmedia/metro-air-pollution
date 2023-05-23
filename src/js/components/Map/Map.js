@@ -13,7 +13,7 @@ let map, popup;
 
 
 function init(facilities, options) {
-	console.log(facilities)
+	console.log(facilities);
 
 	// setup the map
 	map = new maplibregl.Map({
@@ -25,16 +25,6 @@ function init(facilities, options) {
 		bearing: options.bearing,
 		pitch: options.pitch	
 	});
-
-	// create a popup but don't add it to the map yet...
-	popup = new maplibregl.Popup({
-		closeButton: true,
-		closeonClick: false
-	});
-
-	//
-	map.on('mouseenter', 'facilities', showPopup);
-	map.on('click', 'facilities', showPopup);
 
 	// create geolocator
 	const geocoder_api = {
@@ -78,6 +68,27 @@ function init(facilities, options) {
 		}
 	};
 
+	const geo = new MaplibreGeocoder(geocoder_api, {
+		maplibregl: maplibregl,
+		zoom: 18,
+		setFlyTo: {
+			zoom: 18,
+			minZoom: 18
+		}
+	});
+
+	console.log(geo.getFlyTo())
+
+	// create a popup but don't add it to the map yet...
+	popup = new maplibregl.Popup({
+		closeButton: true,
+		closeonClick: false
+	});
+
+	//
+	map.on('mouseenter', 'facilities', showPopup);
+	map.on('click', 'facilities', showPopup);
+
 	// Add features to the map
 	map
 		// geolocate control
@@ -91,7 +102,12 @@ function init(facilities, options) {
 		// geodcoder to search an address
 		.addControl(
 			new MaplibreGeocoder(geocoder_api, {
-				maplibregl: maplibregl
+				maplibregl: maplibregl,
+				zoom: 18,
+				setFlyTo: {
+					zoom: 18,
+					minZoom: 18
+				}
 			})
 		)
 		// zoom
