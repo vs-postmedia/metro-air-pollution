@@ -10,6 +10,7 @@ import '../../../css/popup.css';
 import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 
 let map, popup;
+const geocodeZoomLevel = 14;
 
 
 function init(facilities, options) {
@@ -68,16 +69,16 @@ function init(facilities, options) {
 		}
 	};
 
-	const geo = new MaplibreGeocoder(geocoder_api, {
-		maplibregl: maplibregl,
-		zoom: 18,
-		setFlyTo: {
-			zoom: 18,
-			minZoom: 18
-		}
+	const geocoder = new MaplibreGeocoder(geocoder_api, {
+		maplibregl: maplibregl
 	});
-
-	console.log(geo.getFlyTo())
+	// default zoom is too close
+	geocoder.on('result', e => {
+		map.flyTo({
+			center: e.result.center,
+			zoom: geocodeZoomLevel
+		});
+	});
 
 	// create a popup but don't add it to the map yet...
 	popup = new maplibregl.Popup({
@@ -85,7 +86,7 @@ function init(facilities, options) {
 		closeonClick: false
 	});
 
-	//
+	// mouseevents for popup
 	map.on('mouseenter', 'facilities', showPopup);
 	map.on('click', 'facilities', showPopup);
 
@@ -100,16 +101,7 @@ function init(facilities, options) {
 				trackUserLocation: true
 			}))
 		// geodcoder to search an address
-		.addControl(
-			new MaplibreGeocoder(geocoder_api, {
-				maplibregl: maplibregl,
-				zoom: 18,
-				setFlyTo: {
-					zoom: 18,
-					minZoom: 18
-				}
-			})
-		)
+		.addControl(geocoder)
 		// zoom
 		.addControl(
 			new maplibregl.NavigationControl()
