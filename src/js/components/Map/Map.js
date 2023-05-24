@@ -9,12 +9,12 @@ import './maplibre-gl.css';
 import '../../../css/popup.css';
 import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 
+// VARS
 let map, popup;
-const geocodeZoomLevel = 14;
 
-
-async function init(facilities, options) {
-	console.log(facilities);
+// FUNCTIONS
+async function init(options, facilities, buffers) {
+	console.log(buffers);
 
 	// setup the map
 	map = new maplibregl.Map({
@@ -34,25 +34,42 @@ async function init(facilities, options) {
 	const popup = setupPopup(map);
 
 	// Add features to the map
-	map
-		// geolocate control
-		.addControl(
-			new maplibregl.GeolocateControl({
-				positionOptions: {
-					enableHighAccuracy: true
-				},
-				trackUserLocation: true
-			}))
-		// geodcoder to search an address
-		.addControl(geocoder)
-		// zoom
-		.addControl(
-			new maplibregl.NavigationControl()
-		);
+	addMapFeatures(map, geocoder);
 
 	// add map data
 	map.on('load', () => {
 		map
+			// 2k buffers
+			// .addSource('buffers-2k', {
+			// 	type: 'geojson',
+			// 	data: buffers.buffers_2k
+			// })
+			// .addLayer({
+			// 	id: 'buffers-2k',
+			// 	type: 'fill',
+			// 	source: 'buffers-2k',
+			// 	layout: {},
+			// 	paint: {
+			// 		'fill-color': '#898b8e',
+			// 		'fill-opacity': 0.1
+			// 	}
+			// })
+			// 1k buffers
+			.addSource('buffers-1k', {
+				type: 'geojson',
+				data: buffers.buffers_1k
+			})
+			.addLayer({
+				id: 'buffers-1k',
+				type: 'fill',
+				source: 'buffers-1k',
+				layout: {},
+				paint: {
+					'fill-color': '#0062a3',
+					'fill-opacity': 0.1,
+					'fill-outline-color': '#FFF'
+				}
+			})
 			// facility locations
 			.addSource('facilities', {
 				type: 'geojson',
@@ -64,12 +81,19 @@ async function init(facilities, options) {
 				source: 'facilities',
 				paint: {
 					'circle-color': '#0062a3',
-					'circle-opacity': 0.7,
+					'circle-opacity': 0.8,
 					'circle-radius': 5,
 					'circle-stroke-color': '#FFF',
 					'circle-stroke-width': 0.5
 				}
 			});
+		
+			map.on('click', 'buffers-1k', function (e) {
+				new maplibregl.Popup()
+				.setLngLat(e.lngLat)
+				.setHTML(e.features[0].properties.organization)
+				.addTo(map);
+				});
 	});
 }
 
@@ -123,11 +147,30 @@ async function setupGeocoder(map) {
 		geocoder.on('result', e => {
 			map.flyTo({
 				center: e.result.center,
-				zoom: geocodeZoomLevel
+				zoom: options.geocodeZoomLevel
 			});
 		});
 
 	return geocoder;
+}
+
+function addMapFeatures(map, geocoder) {
+	map
+		// geolocate control
+		.addControl(
+			new maplibregl.GeolocateControl({
+				positionOptions: {
+					enableHighAccuracy: true
+				},
+				trackUserLocation: true
+			}))
+		// geodcoder to search an address
+		.addControl(geocoder)
+		// zoom
+		.addControl(
+			new maplibregl.NavigationControl()
+		);
+
 }
 
 function setupPopup(map) {
@@ -163,23 +206,5 @@ function showPopup(e) {
 	// population the popup & set coordinates
 	popup.setLngLat(coords).setHTML(html).addTo(map);
 }
-
-// function setActiveChapter(section, activeSection, data) {
-// 	if (section === activeSection) return;
-	 
-// 	map.flyTo(data[section]);
-	 
-// 	document.getElementById(section).setAttribute('class', 'active');
-// 	document.getElementById(activeSection).setAttribute('class', '');
-	 
-// 	activeSection = section;
-// }
-
-// function isElementOnScreen(id) {
-// 	var element = document.getElementById(id);
-// 	var bounds = element.getBoundingClientRect();
-
-// 	return bounds.top < (window.innerHeight * 2) && bounds.bottom > 0;
-// }
 
 export default { init };
