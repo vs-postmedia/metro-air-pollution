@@ -1,6 +1,7 @@
 import maplibregl from 'maplibre-gl';
 import MaplibreGeocoder from '@maplibre/maplibre-gl-geocoder';
 
+//TEMPLATES
 import popupTemplate from '../../../data/popup-template';
 
 // CSS
@@ -14,7 +15,7 @@ let map, popup;
 
 // FUNCTIONS
 async function init(options, facilities, buffers) {
-	console.log(buffers);
+	console.log(facilities);
 
 	// setup the map
 	map = new maplibregl.Map({
@@ -33,27 +34,12 @@ async function init(options, facilities, buffers) {
 	// setup popup for facilities
 	const popup = setupPopup(map);
 
-	// Add features to the map
+	// Add zoom, geocode, etc, to the map
 	addMapFeatures(map, geocoder);
 
-	// add map data
+	// add data
 	map.on('load', () => {
 		map
-			// 2k buffers
-			// .addSource('buffers-2k', {
-			// 	type: 'geojson',
-			// 	data: buffers.buffers_2k
-			// })
-			// .addLayer({
-			// 	id: 'buffers-2k',
-			// 	type: 'fill',
-			// 	source: 'buffers-2k',
-			// 	layout: {},
-			// 	paint: {
-			// 		'fill-color': '#898b8e',
-			// 		'fill-opacity': 0.1
-			// 	}
-			// })
 			// 1k buffers
 			.addSource('buffers-1k', {
 				type: 'geojson',
@@ -88,12 +74,26 @@ async function init(options, facilities, buffers) {
 				}
 			});
 		
-			map.on('click', 'buffers-1k', function (e) {
-				new maplibregl.Popup()
-				.setLngLat(e.lngLat)
-				.setHTML(e.features[0].properties.organization)
-				.addTo(map);
-				});
+			// map.on('click', 'buffers-1k', function (e) {
+			// 	new maplibregl.Popup()
+			// 	.setLngLat(e.lngLat)
+			// 	.setHTML(e.features[0].properties.organization)
+			// 	.addTo(map);
+			// 	});
+			// map.on('click', 'buffers-1k', function (e) {
+			// 	const data = {
+			// 		contaminants: JSON.parse(e.features[0].properties.data),
+			// 		org: e.features[0].properties.organization
+			// 	};
+			// 	// fill in the popup template
+			// 	const html = popupTemplate(data);
+
+			// 	new maplibregl.Popup()
+			// 	.setLngLat(e.lngLat)
+			// 	// .setHTML(e.features[0].properties.organization)
+			// 	.setHTML(html)
+			// 	.addTo(map);
+			// 	});
 	});
 }
 
@@ -181,17 +181,24 @@ function setupPopup(map) {
 	});
 
 	// mouseevents for popup
-	map.on('mouseenter', 'facilities', showPopup);
-	map.on('click', 'facilities', showPopup);
+	map.on('mouseenter', 'buffers-1k', showPopup);
+	map.on('click', 'buffers-1k', showPopup);
 }
 
 function showPopup(e) {
-	const data = {};
+	const data = {
+		contaminants: JSON.parse(e.features[0].properties.data),
+		org: e.features[0].properties.organization
+	};
+
+	// fill in the popup template
+	const html = popupTemplate(data);
+
 	// change the cursor style as UI indicator
 	map.getCanvas().style.cursor = 'pointer';
 
+	// coords for points - MAY BE DIFF FOR POLYGONS!!!
 	const coords = e.features[0].geometry.coordinates.slice();
-	data.org = e.features[0].properties.organization;
 
 	// Ensure that if the map is zoomed out such that multiple
 	// copies of the feature are visible, the popup appears
@@ -200,11 +207,12 @@ function showPopup(e) {
 		coords[0] += e.lngLat.lng > coords[0] ? 360 : -360;
 	}
 
-	// fill in the popup template
-	const html = popupTemplate(data);
-
 	// population the popup & set coordinates
-	popup.setLngLat(coords).setHTML(html).addTo(map);
+	popup
+		// .setLngLat(coords)
+		.setLngLat(e.lngLat)
+		.setHTML(html)
+		.addTo(map);
 }
 
 export default { init };
