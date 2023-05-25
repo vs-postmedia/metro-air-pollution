@@ -73,27 +73,6 @@ async function init(options, facilities, buffers) {
 					'circle-stroke-width': 0.5
 				}
 			});
-		
-			// map.on('click', 'buffers-1k', function (e) {
-			// 	new maplibregl.Popup()
-			// 	.setLngLat(e.lngLat)
-			// 	.setHTML(e.features[0].properties.organization)
-			// 	.addTo(map);
-			// 	});
-			// map.on('click', 'buffers-1k', function (e) {
-			// 	const data = {
-			// 		contaminants: JSON.parse(e.features[0].properties.data),
-			// 		org: e.features[0].properties.organization
-			// 	};
-			// 	// fill in the popup template
-			// 	const html = popupTemplate(data);
-
-			// 	new maplibregl.Popup()
-			// 	.setLngLat(e.lngLat)
-			// 	// .setHTML(e.features[0].properties.organization)
-			// 	.setHTML(html)
-			// 	.addTo(map);
-			// 	});
 	});
 }
 
@@ -141,7 +120,8 @@ async function setupGeocoder(map) {
 		};
 	
 		const geocoder = new MaplibreGeocoder(geocoder_api, {
-			maplibregl: maplibregl
+			maplibregl: maplibregl,
+			placeholder: 'Enter an address...'
 		});
 		// default zoom is too close
 		geocoder.on('result', e => {
