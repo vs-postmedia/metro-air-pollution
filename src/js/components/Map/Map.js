@@ -1,10 +1,10 @@
+// LIBS
 import Maplibregl from 'maplibre-gl';
 import * as turf from '@turf/helpers';
 import PointsWithinPolygon from '@turf/points-within-polygon';
 import MaplibreGeocoder from '@maplibre/maplibre-gl-geocoder';
 
-
-//TEMPLATES
+// TEMPLATES
 import popupTemplate from '../../../data/popup-template';
 
 // CSS
@@ -80,13 +80,15 @@ async function init(options, facilities, buffers_1k) {
 }
 
 function addBufferValues(data) {
-	console.log(data)
+	// abort if there's no data to show in a popup...
+	if (data.length === 0) return;
+	
+	const sumByContaminant = {};
 	const data_obj = {
 		orgs: []
 	};
-	const sumByContaminant = {};
-	// console.log(JSON.stringify(data))
 
+	// EXPLAIN
 	data.forEach(d => {
 		data_obj.orgs.push(d.properties.organization);
 		d.properties.data[0].forEach(obj => {
@@ -105,6 +107,7 @@ function addBufferValues(data) {
 		});
 	});
 
+	// CACHE IN OUR DATA OBJECT
 	data_obj.sumByContaminant = sumByContaminant;
 
 	// console.log(sumByContaminant);
@@ -181,6 +184,7 @@ async function setupGeocoder(map, options) {
 		maplibregl: Maplibregl,
 		placeholder: 'Lookup an address...'
 	});
+
 	// default zoom is too close
 	geocoder.on('result', e => {
 		map.flyTo({
@@ -189,10 +193,9 @@ async function setupGeocoder(map, options) {
 			// this animation is considered essential with respect to prefers-reduced-motion
 			essential: true,
 			zoom: options.geocodeZoomLevel
-		})
-	}, () => {
-		// this doesn't trigger... hmm....
-		console.log('Done!')
+		});
+		// Perform actions after the fly-to animation is complete
+		map.once('moveend', () => showPopup(e, true));
 	});
 
 return geocoder;
@@ -208,14 +211,15 @@ function setupPopup(map) {
 	// mouseevents for popup
 	// map.on('mouseenter', 'buffers-1k', showPopup);
 	// map.on('click', 'buffers-1k', showPopup);
-	map.on('click', showPopup_v2)
+	map.on('click', showPopup)
 }
 
-function showPopup_v2(e) {
+function showPopup(e, flyto) {
 	const data = [];
-	// console.log(e.lngLat);
-	// create a geojson of our point
-	const point = turf.point([e.lngLat.lng, e.lngLat.lat]);
+
+	// create a geojson & set lnglat coords for our point – differs depending on if it's the result of a map click or geocode result
+	const point = (flyto === true) ? turf.point(e.result.center) : turf.point([e.lngLat.lng, e.lngLat.lat]);
+	const lng_lat = (flyto === true) ? e.result.center : e.lngLat
 
 	// find out if the point is inside buffers
 	buffers.buffers_1k.features.forEach(d => {
@@ -229,19 +233,20 @@ function showPopup_v2(e) {
 	const totals = addBufferValues(data);
 
 	// we don't need a popup if we're not inside a buffer...
-	if (totals.orgs.length === 0) return;
+	if (totals === undefined) return;
 
 	// fill in the popup template
 	const html = popupTemplate(totals);
 
 	// populate the popup, set coordinates & display on map
 	popup
-		.setLngLat(e.lngLat)
+		// .setLngLat(e.lngLat)
+		.setLngLat(lng_lat)
 		.setHTML(html)
 		.addTo(map);
 }
 
-function showPopup(e) {
+function showPopup_old(e) {
 	const data = {
 		contaminants: JSON.parse(e.features[0].properties.data),
 		org: e.features[0].properties.organization

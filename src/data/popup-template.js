@@ -15,15 +15,6 @@ module.exports = (data_obj) => {
                 </li>
             `;
     }
-    // data.forEach(d => {
-    //     // if (d.total === 0) return;
-    //     list += `
-    //             <li>
-    //                 <p><span class="bold">${d.contaminant}:</span> $${Math.round(d.total_impact_value, 0)}</p>
-    //                 <p>Impact scale: ${Math.round(d.total_impact_scale * 10) / 10}</p>
-    //             </li>
-    //         `;
-    // });
 
     return `
         <div class="popup-container">
