@@ -9,7 +9,8 @@ import popupTemplate from '../../../data/popup-template';
 
 // CSS
 import './Map.css';
-import './maplibre-gl.css';
+// import './maplibre-gl.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import '../../../css/popup.css';
 import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 
@@ -216,6 +217,8 @@ function setupPopup(map) {
 
 function showPopup(e, flyto) {
 	const data = [];
+
+	console.log(e)
 
 	// create a geojson & set lnglat coords for our point – differs depending on if it's the result of a map click or geocode result
 	const point = (flyto === true) ? turf.point(e.result.center) : turf.point([e.lngLat.lng, e.lngLat.lat]);
