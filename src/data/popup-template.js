@@ -1,4 +1,4 @@
-module.exports = (data_obj) => {
+function popupTemplate(data_obj) {
     let list = '';
     const data = data_obj.sumByContaminant;
 
@@ -40,3 +40,5 @@ module.exports = (data_obj) => {
         </div>
     `;
 }
+
+export default popupTemplate;
