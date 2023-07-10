@@ -2,9 +2,11 @@ function popupTemplate(data_obj) {
     let list = '';
     const data = data_obj.sumByContaminant;
 
+    console.log(data_obj)
+
     // we're iterating over an object (i know, i know <rolling_eyes>)
     for (const d in data) {
-        console.log(data[d].total_released)
+        console.log(d)
         const released = data[d].total_released
                 .toFixed(2)
                 .toLocaleString('en-US');
@@ -16,9 +18,6 @@ function popupTemplate(data_obj) {
         const scale = data[d].total_impact_scale
             .toFixed(1)
             .toLocaleString()
-
-        console.log(data[d].total_impact_value)
-        console.log(released)
 
         list += `
                 <li>
@@ -34,7 +33,7 @@ function popupTemplate(data_obj) {
 
     return `
         <div class="popup-container">
-            <h2>${data.org}</h2>
+            <h2>${data_obj.orgs[0]}</h2>
             <p class="subhead">Total values, 2009-2021</p>
             <ul class="popup-list">${list}</ul>
         </div>
