@@ -14,7 +14,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import '../../../css/popup.css';
 import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 
-// VARS
+// VARS	
 let buffers, map, popup;
 
 // FUNCTIONS
@@ -55,9 +55,10 @@ async function init(options, facilities, buffers_1k) {
 				source: 'buffers-1k',
 				layout: {},
 				paint: {
-					'fill-color': '#0062a3',
-					'fill-opacity': 0.1,
-					'fill-outline-color': '#FFF'
+					// 'fill-color': '#0062a3',
+					'fill-color': '#898B8E',
+					'fill-opacity': 0.3
+					// 'fill-outline-color': '#FFF'
 				}
 			})
 			// facility locations
@@ -72,7 +73,7 @@ async function init(options, facilities, buffers_1k) {
 				paint: {
 					'circle-color': '#0062a3',
 					'circle-opacity': 0.8,
-					'circle-radius': 3.5,
+					'circle-radius': 5,
 					'circle-stroke-color': '#FFF',
 					'circle-stroke-width': 0.5
 				}
@@ -93,16 +94,18 @@ function addBufferValues(data) {
 	data.forEach(d => {
 		data_obj.orgs.push(d.properties.organization);
 		d.properties.data[0].forEach(obj => {
-			const { contaminant, total_released, total_impact_value, total_impact_scale } = obj;
-			if (sumByContaminant.hasOwnProperty(contaminant)) {
-				sumByContaminant[contaminant].total_released += total_released;
-				sumByContaminant[contaminant].total_impact_scale += total_impact_scale;
-				sumByContaminant[contaminant].total_impact_value += total_impact_value;
+			const { combined_contaminant, total, /*total_impact_value, total_impact_scale*/ } = obj;
+			if (sumByContaminant.hasOwnProperty(combined_contaminant)) {
+				sumByContaminant[combined_contaminant].total += total;
+				// sumByContaminant[contaminant].total_impact_scale += total_impact_scale;
+				// sumByContaminant[contaminant].total_impact_value += total_impact_value;
 			} else {
-				sumByContaminant[contaminant] = {
-					total_released,
-					total_impact_scale,
-					total_impact_value
+				sumByContaminant[combined_contaminant] = {
+					total,
+					// total_impact_scale,
+					// total_impact_value,
+					// avg_impact_value: total_impact_value / 12,
+					// avg_impact_scale: total_impact_scale / 12
 				};
 			}
 		});
@@ -218,7 +221,7 @@ function setupPopup(map) {
 function showPopup(e, flyto) {
 	const data = [];
 
-	console.log(e)
+	// console.log(e)
 
 	// create a geojson & set lnglat coords for our point – differs depending on if it's the result of a map click or geocode result
 	const point = (flyto === true) ? turf.point(e.result.center) : turf.point([e.lngLat.lng, e.lngLat.lat]);
