@@ -22,24 +22,29 @@
   		<![endif]-->
 
   		<div id="app">
-			<h1>Hed</h1>
-			<p>Select any circle for details. Blue circles are facility locations. Grey circles represent a 1 km zone surrounding each facility and will show the combined total of air contaminants for that location.</p>
+			<h1>What’s in the air near you?</h1>
+			<p>Select any circle for details. Blue circles are facility locations. Grey circles represent a 1 km zone surrounding each facility and will show the combined total of air contaminants for the location within that zone.</p>
 			<div id="scroller">
-				<div id="map">
-					<!-- <div id="features">
-						<section id="baker" class="active">
-							<h3>221b Baker St.</h3>
-							<p>
-								November 1895. London is shrouded in fog and Sherlock Holmes and
-								Watson pass time restlessly awaiting a new case. "The London
-								criminal is certainly a dull fellow," Sherlock bemoans. "There have
-								been numerous petty thefts," Watson offers in response. Just then a
-								telegram arrives from Sherlock's brother Mycroft with a mysterious
-								case.
-							</p>
-						</section>
-					</div> -->
+				<div class="map-overlay top">
+					<div class="map-overlay-inner">
+						<nav id="nav-filter">
+							<fieldset>
+								<legend>🫨 Earthquake <code>felt</code>?</legend>
+								<div>
+									<input id="felt" type="checkbox" />
+									<label for="felt">Nitrogen oxides</label>
+									<input id="felt" type="checkbox" />
+									<label for="felt">Sulphur oxides</label>
+									<input id="felt" type="checkbox" />
+									<label for="felt">Particulate matter</label>
+									<input id="felt" type="checkbox" />
+									<label for="felt">VOCs</label>
+								</div>
+							</fieldset>
+						</nav>
+					</div>
 				</div>
+				<div id="map"></div>
 			</div>
 		</div>
 	</body>

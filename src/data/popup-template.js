@@ -1,8 +1,14 @@
 function popupTemplate(data_obj) {
     let list = '';
+    let org_list = '';
     const data = data_obj.sumByContaminant;
 
-    console.log( data_obj)
+    console.log(data_obj)
+
+    // get list of facilities
+    data_obj.orgs.forEach(d => {
+        org_list += `${d}, `;
+    });
 
     // we're iterating over an object (i know, i know <rolling_eyes>)
     for (const d in data) {
@@ -18,19 +24,18 @@ function popupTemplate(data_obj) {
         list += `
                 <li>
                     <ul>
-                        <span class="bold">${d}:</span>
-                        <p>Metric tonnes:</span> ${numberWithCommas(released)}</p>
-                        <p>Avg. annual metric tonnes:</span> ${numberWithCommas(avg_released)}</p>
+                        <p><span class="bold">${d}:</span> ${numberWithCommas(avg_released)} metric tonnes</p>
                     </ul>
                 </li>
             `;
+        // <p>Metric tonnes:</span> ${numberWithCommas(released)}</p>
     }
 
     return `
         <div class="popup-container">
-            <h2>${data_obj.orgs[0]}</h2>
-            <p class="subhead">Total values, 2009-2021</p>
+            <h3>Average annual maximum emissions allowed from 2009-2021:</h3>
             <ul class="popup-list">${list}</ul>
+            <p><span class="bold">Sources:</span> ${org_list.slice(0, -2)}</p>
         </div>
     `;
 }

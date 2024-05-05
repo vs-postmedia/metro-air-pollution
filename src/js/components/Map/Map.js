@@ -6,6 +6,7 @@ import MaplibreGeocoder from '@maplibre/maplibre-gl-geocoder';
 
 // TEMPLATES
 import popupTemplate from '../../../data/popup-template';
+import popupFacilitiesTemplate from '../../../data/popup-template-facilities';
 
 // CSS
 import './Map.css';
@@ -15,11 +16,12 @@ import '../../../css/popup.css';
 import '@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css';
 
 // VARS	
-let buffers, map, popup;
+let buffers, locations, map, popup;
 
 // FUNCTIONS
 async function init(options, facilities, buffers_1k) {
 	buffers = buffers_1k;
+	locations = facilities;
 
 	// setup the map
 	map = new Maplibregl.Map({
@@ -57,7 +59,7 @@ async function init(options, facilities, buffers_1k) {
 				paint: {
 					// 'fill-color': '#0062a3',
 					'fill-color': '#898B8E',
-					'fill-opacity': 0.3
+					'fill-opacity': 0.2
 					// 'fill-outline-color': '#FFF'
 				}
 			})
@@ -72,8 +74,8 @@ async function init(options, facilities, buffers_1k) {
 				source: 'facilities',
 				paint: {
 					'circle-color': '#0062a3',
-					'circle-opacity': 0.8,
-					'circle-radius': 5,
+					'circle-opacity': 1,
+					'circle-radius': 6,
 					'circle-stroke-color': '#FFF',
 					'circle-stroke-width': 0.5
 				}
@@ -135,6 +137,16 @@ function addMapFeatures(map, geocoder) {
 			new Maplibregl.NavigationControl()
 		);
 
+}
+
+function setupFilter() {
+	document.getElementById('nav-filter').addEventListener('change', (e) => {
+        let filterOnValue = ['all'];
+
+		// eslint-disable-next-line no-unused-expressions
+
+		// e.target.checked ? data.felt = Number(felt.value) : delete data['felt'];
+	});
 }
 
 async function setupGeocoder(map, options) {
@@ -212,16 +224,33 @@ function setupPopup(map) {
 		closeonClick: false
 	});
 
-	// mouseevents for popup
-	// map.on('mouseenter', 'buffers-1k', showPopup);
-	// map.on('click', 'buffers-1k', showPopup);
-	map.on('click', showPopup)
+	// mouse events for popup
+	
+	map.on('click', 'buffers-1k', showPopup);
+	map.on('click', 'facilities', showFacilitiesPopup);
+	// map.on('click', showPopup)
+}
+
+function showFacilitiesPopup(e) {
+	const features = e.features[0];
+	// console.log(e.features[0])
+
+	// fill in the popup template
+	const html = popupFacilitiesTemplate(features.properties.data, features.properties.organization);
+
+	// populate the popup, set coordinates & display on map
+	popup
+		.setLngLat(features.geometry.coordinates)
+		.setHTML(html)
+		.addTo(map);
 }
 
 function showPopup(e, flyto) {
-	const data = [];
-
 	// console.log(e)
+	if (e.features === undefined) return;
+	
+	// else make the buffer popup
+	const data = [];
 
 	// create a geojson & set lnglat coords for our point – differs depending on if it's the result of a map click or geocode result
 	const point = (flyto === true) ? turf.point(e.result.center) : turf.point([e.lngLat.lng, e.lngLat.lat]);
@@ -246,7 +275,6 @@ function showPopup(e, flyto) {
 
 	// populate the popup, set coordinates & display on map
 	popup
-		// .setLngLat(e.lngLat)
 		.setLngLat(lng_lat)
 		.setHTML(html)
 		.addTo(map);
@@ -283,3 +311,5 @@ function showPopup_old(e) {
 }
 
 export default { init };
+
+
