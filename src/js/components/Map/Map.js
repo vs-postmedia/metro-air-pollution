@@ -5,7 +5,7 @@ import PointsWithinPolygon from '@turf/points-within-polygon';
 import MaplibreGeocoder from '@maplibre/maplibre-gl-geocoder';
 
 // TEMPLATES
-import popupTemplate from '../../../data/popup-template';
+import popupBufferTemplate from '../../../data/popup-template-buffers';
 import popupFacilitiesTemplate from '../../../data/popup-template-facilities';
 
 // CSS
@@ -225,15 +225,13 @@ function setupPopup(map) {
 	});
 
 	// mouse events for popup
-	
-	map.on('click', 'buffers-1k', showPopup);
+	map.on('click', 'buffers-1k', showBufferPopup);
 	map.on('click', 'facilities', showFacilitiesPopup);
 	// map.on('click', showPopup)
 }
 
 function showFacilitiesPopup(e) {
 	const features = e.features[0];
-	// console.log(e.features[0])
 
 	// fill in the popup template
 	const html = popupFacilitiesTemplate(features.properties.data, features.properties.organization);
@@ -245,7 +243,7 @@ function showFacilitiesPopup(e) {
 		.addTo(map);
 }
 
-function showPopup(e, flyto) {
+function showBufferPopup(e, flyto) {
 	// console.log(e)
 	if (e.features === undefined) return;
 	
@@ -271,7 +269,7 @@ function showPopup(e, flyto) {
 	if (totals === undefined) return;
 
 	// fill in the popup template
-	const html = popupTemplate(totals);
+	const html = popupBufferTemplate(totals);
 
 	// populate the popup, set coordinates & display on map
 	popup
